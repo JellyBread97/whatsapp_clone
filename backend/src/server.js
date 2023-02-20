@@ -6,6 +6,8 @@ import { Server } from "socket.io";
 import { createServer } from "http"; // CORE MODULE
 // import { newConnectionHandler } from "./socket/index.js";
 import usersRouter from "./api/user/index.js";
+import chatRouter from "./api/chat/index.js";
+import messageRouter from "./api/message/index.js";
 import { notFoundHandler, badRequestHandler, genericErrorHandler } from "./errorhandlers.js";
 
 const server = express();
@@ -17,6 +19,8 @@ server.use(express.json());
 
 // ******************************** ENDPOINTS *****************************************
 server.use("/users", usersRouter);
+server.use("/chat", chatRouter);
+server.use("/message", messageRouter);
 
 // ***************************** ERROR HANDLERS ***************************************
 server.use(badRequestHandler);
