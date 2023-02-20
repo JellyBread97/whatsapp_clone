@@ -28,7 +28,23 @@ const userSchema = {
   },
 };
 
+const filteredSchema = {
+  username: {
+    in: ["query"],
+    isString: {
+      errorMessage: "username must be in query and type must be string to search!",
+    },
+  },
+  email: {
+    in: ["query"],
+    isString: {
+      errorMessage: "email must be in query and type must be a number to search!",
+    },
+  },
+};
+
 export const checkUserSchema = checkSchema(userSchema);
+export const checkFilteredSchema = checkSchema(filteredSchema);
 
 export const triggerBadRequest = (req, res, next) => {
   const errorList = validationResult(req);
