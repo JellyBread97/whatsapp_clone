@@ -4,7 +4,11 @@ import UsersModel from "./model.js";
 import { checkFilteredSchema, checkUserSchema, triggerBadRequest } from "./validator.js";
 import { JWTAuthMiddleware } from "../../lib/auth/JWTAuth.js";
 // import { createAccessToken } from "../../lib/tools/tools.js";
-import { createTokens } from "../../lib/tools/tools.js";
+import {
+  createTokens,
+  verifyRefreshAndCreateNewTokens,
+  verifyRefreshAndCreateNewTokensUpdate,
+} from "../../lib/tools/tools.js";
 
 import multer from "multer";
 import { v2 as cloudinary } from "cloudinary";
@@ -57,6 +61,49 @@ usersRouter.post("/session", async (req, res, next) => {
   } catch (error) {
     console.log(error);
     next(createHttpError(500, "An error occurred while logging in"));
+  }
+});
+
+// POST - REFRESH TOKEN [passed in the req.body]
+usersRouter.post("/refreshTokens", async (req, res, next) => {
+  try {
+    const { currentRefreshToken } = req.body;
+
+    const { accessToken, refreshToken } = await verifyRefreshAndCreateNewTokens(currentRefreshToken);
+
+    res.send({ accessToken, refreshToken });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// POST - REFRESH TOKEN [using JWT]
+usersRouter.post("/updated/refreshTokens", JWTAuthMiddleware, async (req, res, next) => {
+  try {
+    const { refreshToken, accessToken } = await verifyRefreshAndCreateNewTokensUpdate(req);
+    res.send({ refreshToken, accessToken });
+  } catch (error) {
+    console.log(error);
+    next(error);
+  }
+});
+
+// DELETE - REFRESH TOKEN
+usersRouter.delete("/session", JWTAuthMiddleware, async (req, res, next) => {
+  try {
+    const userId = req.user._id;
+    const user = await UsersModel.findById(userId);
+    if (!user) {
+      return res.status(404).send({ error: "User not found" });
+    }
+
+    user.refreshToken = "";
+    await user.save();
+
+    res.sendStatus(204);
+  } catch (error) {
+    console.log(error);
+    next(error);
   }
 });
 
