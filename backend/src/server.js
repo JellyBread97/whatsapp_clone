@@ -4,8 +4,13 @@ import cors from "cors";
 import mongoose from "mongoose";
 import { Server } from "socket.io";
 import { createServer } from "http"; // CORE MODULE
-import { newConnectionHandler } from "./socket/index.js";
+// import { newConnectionHandler } from "./socket/index.js";
 import usersRouter from "./api/user/index.js";
+import {
+  notFoundHandler,
+  badRequestHandler,
+  genericErrorHandler,
+} from "./errorhandlers.js";
 
 const server = express();
 const port = process.env.PORT || 3001;
