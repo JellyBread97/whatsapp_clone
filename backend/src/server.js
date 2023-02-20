@@ -6,6 +6,8 @@ import { Server } from "socket.io";
 import { createServer } from "http"; // CORE MODULE
 import { newConnectionHandler } from "./socket/index.js";
 import usersRouter from "./api/user/index.js";
+import chatRouter from "./api/chat/index.js";
+import messageRouter from "./api/message/index.js";
 import { notFoundHandler, badRequestHandler, genericErrorHandler } from "./errorhandlers.js";
 
 const expressServer = express();
@@ -24,15 +26,19 @@ expressServer.use(cors());
 expressServer.use(express.json());
 
 // ******************************** ENDPOINTS *****************************************
+expressServer.use("/chat", chatRouter);
+expressServer.use("/message", messageRouter);
 expressServer.use("/users", usersRouter);
+
 
 // ***************************** ERROR HANDLERS ***************************************
 expressServer.use(badRequestHandler);
 expressServer.use(notFoundHandler);
 expressServer.use(genericErrorHandler);
 
-mongoose.connect(process.env.MONGO_URL);
+const mongooseURL = process.env.MONGO_URL;
 
+mongoose.connect(mongooseURL);
 mongoose.connection.on("connected", () => {
   httpServer.listen(port, () => {
     // DO NOT FORGET TO LISTEN WITH HTTPSERVER HERE, NOT EXPRESS SERVER!!
