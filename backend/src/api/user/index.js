@@ -1,6 +1,8 @@
 import express from "express";
 import createHttpError from "http-errors";
 import UsersModel from "./model.js";
+import { checkUserSchema, triggerBadRequest } from "./validator.js";
+import { JWTAuthMiddleware } from "../../lib/auth/JWTAuth.js";
 
 const usersRouter = express.Router();
 

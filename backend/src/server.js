@@ -6,11 +6,8 @@ import { Server } from "socket.io";
 import { createServer } from "http"; // CORE MODULE
 // import { newConnectionHandler } from "./socket/index.js";
 import usersRouter from "./api/user/index.js";
-import {
-  notFoundHandler,
-  badRequestHandler,
-  genericErrorHandler,
-} from "./errorhandlers.js";
+import { notFoundHandler, badRequestHandler, genericErrorHandler } from "./errorhandlers.js";
+import authRouter from "./api/auth/loginPassword.js";
 
 const server = express();
 const port = process.env.PORT || 3001;
@@ -21,6 +18,7 @@ server.use(express.json());
 
 // ******************************** ENDPOINTS *****************************************
 server.use("/users", usersRouter);
+server.use("/auth", authRouter);
 
 // ***************************** ERROR HANDLERS ***************************************
 server.use(badRequestHandler);
