@@ -1,3 +1,4 @@
+import { check } from "express-validator";
 import jwt from "jsonwebtoken";
 export const createAccessToken = (payload) => {
   console.log("JWT_SECRET: ", process.env.JWT_SECRET);
