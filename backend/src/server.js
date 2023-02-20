@@ -6,11 +6,7 @@ import { Server } from "socket.io";
 import { createServer } from "http"; // CORE MODULE
 // import { newConnectionHandler } from "./socket/index.js";
 import usersRouter from "./api/user/index.js";
-import {
-  notFoundHandler,
-  badRequestHandler,
-  genericErrorHandler,
-} from "./errorhandlers.js";
+import { notFoundHandler, badRequestHandler, genericErrorHandler } from "./errorhandlers.js";
 
 const server = express();
 const port = process.env.PORT || 3001;
@@ -27,8 +23,9 @@ server.use(badRequestHandler);
 server.use(notFoundHandler);
 server.use(genericErrorHandler);
 
-mongoose.connect(process.env.MONGO_URL);
+const mongooseURL = process.env.MONGO_URL;
 
+mongoose.connect(mongooseURL);
 mongoose.connection.on("connected", () => {
   console.log("Successfully connected to Mongo!");
   server.listen(port, () => {
