@@ -4,36 +4,45 @@ import cors from "cors";
 import mongoose from "mongoose";
 import { Server } from "socket.io";
 import { createServer } from "http"; // CORE MODULE
-// import { newConnectionHandler } from "./socket/index.js";
+import { newConnectionHandler } from "./socket/index.js";
 import usersRouter from "./api/user/index.js";
 import chatRouter from "./api/chat/index.js";
 import messageRouter from "./api/message/index.js";
 import { notFoundHandler, badRequestHandler, genericErrorHandler } from "./errorhandlers.js";
 
-const server = express();
+const expressServer = express();
 const port = process.env.PORT || 3001;
 
+// ************************************ SOCKET.IO ********************************
+const httpServer = createServer(expressServer);
+const io = new Server(httpServer);
+// this constructor is expecting to receive an HTTP-SERVER as parameter not an EXPRESS SERVER!!!
+
+io.on("connection", newConnectionHandler);
+// "connection" is NOT a custom event! This is a socket.io event, triggered every time a new client connects!
+
 // ******************************* MIDDLEWARES ****************************************
-server.use(cors());
-server.use(express.json());
+expressServer.use(cors());
+expressServer.use(express.json());
 
 // ******************************** ENDPOINTS *****************************************
-server.use("/users", usersRouter);
-server.use("/chat", chatRouter);
-server.use("/message", messageRouter);
+expressServer.use("/chat", chatRouter);
+expressServer.use("/message", messageRouter);
+expressServer.use("/users", usersRouter);
+
 
 // ***************************** ERROR HANDLERS ***************************************
-server.use(badRequestHandler);
-server.use(notFoundHandler);
-server.use(genericErrorHandler);
+expressServer.use(badRequestHandler);
+expressServer.use(notFoundHandler);
+expressServer.use(genericErrorHandler);
 
 const mongooseURL = process.env.MONGO_URL;
 
 mongoose.connect(mongooseURL);
 mongoose.connection.on("connected", () => {
-  console.log("Successfully connected to Mongo!");
-  server.listen(port, () => {
-    console.table(listEndpoints(server));
+  httpServer.listen(port, () => {
+    // DO NOT FORGET TO LISTEN WITH HTTPSERVER HERE, NOT EXPRESS SERVER!!
+    console.table(listEndpoints(expressServer));
     console.log(`Server is running on port ${port}`);
   });
 });
