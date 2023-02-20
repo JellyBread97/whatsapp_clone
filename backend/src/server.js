@@ -7,7 +7,6 @@ import { createServer } from "http"; // CORE MODULE
 import { newConnectionHandler } from "./socket/index.js";
 import usersRouter from "./api/user/index.js";
 import { notFoundHandler, badRequestHandler, genericErrorHandler } from "./errorhandlers.js";
-import authRouter from "./api/auth/loginPassword.js";
 
 const expressServer = express();
 const port = process.env.PORT || 3001;
@@ -26,7 +25,6 @@ expressServer.use(express.json());
 
 // ******************************** ENDPOINTS *****************************************
 expressServer.use("/users", usersRouter);
-expressServer.use("/auth", authRouter);
 
 // ***************************** ERROR HANDLERS ***************************************
 expressServer.use(badRequestHandler);

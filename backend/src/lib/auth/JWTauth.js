@@ -12,7 +12,7 @@ export const JWTAuthMiddleware = async (req, res, next) => {
 
       req.user = {
         _id: payload._id,
-        role: payload.role,
+        username: payload.username,
       };
       next();
     } catch (error) {

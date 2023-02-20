@@ -2,9 +2,9 @@ import { checkSchema, validationResult } from "express-validator";
 import createHttpError from "http-errors";
 
 const userSchema = {
-  name: {
+  username: {
     in: ["body"],
-    isEmail: {
+    isString: {
       errorMessage: "name is a mandatory field",
     },
   },
@@ -16,7 +16,7 @@ const userSchema = {
   },
   avatar: {
     in: ["body"],
-    isEmail: {
+    isString: {
       errorMessage: "avatar is a mandatory field",
     },
   },
