@@ -5,7 +5,25 @@ import { checkFilteredSchema, checkUserSchema, triggerBadRequest } from "./valid
 import { JWTAuthMiddleware } from "../../lib/auth/JWTAuth.js";
 import { createAccessToken } from "../../lib/tools/tools.js";
 
+import multer from "multer";
+import { v2 as cloudinary } from "cloudinary";
+import { CloudinaryStorage } from "multer-storage-cloudinary";
+
 const usersRouter = express.Router();
+
+// CLOUDINARY - avatar upload
+const cloudinaryUploader = multer({
+  storage: new CloudinaryStorage({
+    cloudinary,
+    params: {
+      folder: "whatsapp/avatar",
+    },
+  }),
+  limits: {
+    fileSize: 10 * 1024 * 1024, // 10 MB
+    files: 1,
+  },
+}).single("avatar");
 
 // REGISTER
 usersRouter.post("/account", checkUserSchema, triggerBadRequest, async (req, res, next) => {
@@ -110,5 +128,65 @@ usersRouter.put("/me", JWTAuthMiddleware, async (req, res, next) => {
     next(error);
   }
 });
+
+// POST - AVATAR
+// usersRouter.post("/me/avatar", JWTAuthMiddleware, cloudinaryUploader, async (req, res, next) => {
+//   try {
+//     console.log(req.headers);
+//     console.log("the req.file is: ", req.file);
+//     // const url = req.file.path;
+//     // const avatar = url;
+//     const avatar = req.file.path;
+
+//     const { _id } = req.user;
+//     const user = await UsersModel.findById(_id);
+
+//     if (user) {
+//       user = { ...user, avatar: avatar };
+//       await user.save();
+//       res.send("Avatar uploaded");
+//     } else {
+//       res.status(404).send({ notFound: "User not found" });
+//     }
+//   } catch (error) {
+//     console.log(error);
+//     next(error);
+//   }
+// });
+
+usersRouter.post(
+  "/me/avatar",
+  JWTAuthMiddleware,
+  (req, res, next) => {
+    console.log("req.headers: ", req.headers);
+    const contentType = req.headers["content-type"];
+    if (!contentType || !contentType.startsWith("multipart/form-data")) {
+      return res.status(400).send({ error: "Invalid request" });
+    }
+    next();
+  },
+  cloudinaryUploader,
+  async (req, res, next) => {
+    try {
+      console.log(req.headers);
+      console.log("the req.file is: ", req.file);
+      const avatar = req.file.path;
+
+      const { _id } = req.user;
+      const user = await UsersModel.findById(_id);
+
+      if (user) {
+        user.avatar = avatar;
+        await user.save();
+        res.status(204).send("Avatar uploaded");
+      } else {
+        res.status(404).send({ notFound: "User not found" });
+      }
+    } catch (error) {
+      console.log(error);
+      next(error);
+    }
+  }
+);
 
 export default usersRouter;
