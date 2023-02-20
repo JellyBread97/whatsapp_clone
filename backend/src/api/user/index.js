@@ -3,7 +3,8 @@ import createHttpError from "http-errors";
 import UsersModel from "./model.js";
 import { checkFilteredSchema, checkUserSchema, triggerBadRequest } from "./validator.js";
 import { JWTAuthMiddleware } from "../../lib/auth/JWTAuth.js";
-import { createAccessToken } from "../../lib/tools/tools.js";
+// import { createAccessToken } from "../../lib/tools/tools.js";
+import { createTokens } from "../../lib/tools/tools.js";
 
 import multer from "multer";
 import { v2 as cloudinary } from "cloudinary";
@@ -31,11 +32,10 @@ usersRouter.post("/account", checkUserSchema, triggerBadRequest, async (req, res
     const body = req.body;
     const user = new UsersModel(body);
 
-    const payload = { _id: user._id, username: user.username };
-    const accessToken = await createAccessToken(payload);
+    const { accessToken, refreshToken } = await createTokens(user);
     const { _id, email } = await user.save();
 
-    res.status(201).send({ _id, email, accessToken });
+    res.status(201).send({ _id, email, accessToken, refreshToken });
   } catch (error) {
     next(error);
   }
@@ -47,10 +47,9 @@ usersRouter.post("/session", async (req, res, next) => {
     const { email, password } = req.body;
     const user = await UsersModel.checkCredentials(email, password);
     if (user) {
-      const payload = { _id: user._id, username: user.username };
-      const accessToken = await createAccessToken(payload);
+      const { accessToken, refreshToken } = await createTokens(user);
 
-      res.status(200).send({ accessToken });
+      res.status(200).send({ accessToken, refreshToken });
     } else {
       // next(createHttpError(401, "Credentials are not ok!"));
       res.status(401).send({ failure: `Credentials not ok` });
@@ -129,31 +128,30 @@ usersRouter.put("/me", JWTAuthMiddleware, async (req, res, next) => {
   }
 });
 
+// GET - specific user
+usersRouter.get("/single/:id", JWTAuthMiddleware, async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    console.log("id: ", id);
+
+    const user = await UsersModel.findById(id);
+    console.log("user: ", user);
+
+    if (!user) {
+      return res.status(404).send({ error: "User not found" });
+    }
+
+    res.send(user);
+  } catch (error) {
+    if (error.name === "CastError") {
+      return res.status(400).send({ error: "Invalid ID supplied" });
+    }
+    console.log(error);
+    next(error);
+  }
+});
+
 // POST - AVATAR
-// usersRouter.post("/me/avatar", JWTAuthMiddleware, cloudinaryUploader, async (req, res, next) => {
-//   try {
-//     console.log(req.headers);
-//     console.log("the req.file is: ", req.file);
-//     // const url = req.file.path;
-//     // const avatar = url;
-//     const avatar = req.file.path;
-
-//     const { _id } = req.user;
-//     const user = await UsersModel.findById(_id);
-
-//     if (user) {
-//       user = { ...user, avatar: avatar };
-//       await user.save();
-//       res.send("Avatar uploaded");
-//     } else {
-//       res.status(404).send({ notFound: "User not found" });
-//     }
-//   } catch (error) {
-//     console.log(error);
-//     next(error);
-//   }
-// });
-
 usersRouter.post(
   "/me/avatar",
   JWTAuthMiddleware,
@@ -168,8 +166,6 @@ usersRouter.post(
   cloudinaryUploader,
   async (req, res, next) => {
     try {
-      console.log(req.headers);
-      console.log("the req.file is: ", req.file);
       const avatar = req.file.path;
 
       const { _id } = req.user;
