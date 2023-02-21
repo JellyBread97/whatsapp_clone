@@ -1,6 +1,7 @@
 import express from "express";
 import ChatModel from "./model.js";
 import UsersModel from "../user/model.js";
+import { JWTAuthMiddleware } from "../../lib/auth/JWTauth.js";
 
 const chatRouter = express.Router();
 
@@ -14,47 +15,34 @@ chatRouter.post("/", async (req, res, next) => {
   }
 });
 
-chatRouter.post("/:senderId/:receiverId", async (req, res, next) => {
+chatRouter.post("/newChat", JWTAuthMiddleware, async (req, res, next) => {
   try {
-    //const sender = UsersModel.findById(req.params.senderId);
-    const senderId = req.params.senderId;
-    const receiverId = req.params.receiverId;
+    const chatsArray = await ChatModel.findOne({
+      members: {
+        $in: [req.body.receiver, req.user._id],
+      },
+    });
+    console.log("CHATARRAY:", chatsArray);
 
-    const allChats = await ChatModel.find();
-
-    let status = null;
-
-    //check for array length first
-
-    const checkChatExistance = async (sender, receiver) => {
-      const filterd = allChats.map((chat) => {
-        if (chat.members.includes(receiver) && chat.members.includes(sender) && chat.members.length === 2) {
-          console.log("-------------:", true);
-          console.log("ARRAY:LENGTH-1:", chat.members.length);
-          status = chat;
-          return chat;
-        }
-      });
-    };
-
-    const filter = await checkChatExistance(senderId, receiverId);
-    console.log("--------------------------------", status);
-
-    if (status) {
-      console.log("POSITIVE");
+    if (chatsArray.length !== 0) {
+      console.log("CHAT ALREADY EXISTS");
     } else {
-      console.log("NEGATIVE");
+      const newChat = new ChatModel({ members: [req.user._id, req.body.receiver] });
+      const { _id } = await newChat.save();
+      const updateSender = await UsersModel.findByIdAndUpdate(req.user._id, { $push: { chats: { _id } } }, { new: true });
+      const updateReceiver = await UsersModel.findByIdAndUpdate(req.body.receiver, { $push: { chats: { _id } } }, { new: true });
+      res.status(201).send({ newChat, updateSender, updateReceiver });
     }
   } catch (error) {
+    console.log(error);
     next(error);
   }
 });
 
 chatRouter.get("/", async (req, res, next) => {
   try {
-    const chats = await ChatModel.find()
-      .populate({ path: "messages", select: ["content"] })
-      .populate({ path: "members", select: ["name", "email", "avatar"] });
+    const chats = await ChatModel.find().populate({ path: "messages", select: ["content"] });
+    // .populate({ path: "members", select: ["name", "email", "avatar"] });
     res.status(200).send(chats);
   } catch (error) {
     next(error);

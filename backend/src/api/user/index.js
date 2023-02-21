@@ -4,11 +4,7 @@ import UsersModel from "./model.js";
 import { checkFilteredSchema, checkUserSchema, triggerBadRequest } from "./validator.js";
 import { JWTAuthMiddleware } from "../../lib/auth/JWTAuth.js";
 // import { createAccessToken } from "../../lib/tools/tools.js";
-import {
-  createTokens,
-  verifyRefreshAndCreateNewTokens,
-  verifyRefreshAndCreateNewTokensUpdate,
-} from "../../lib/tools/tools.js";
+import { createTokens, verifyRefreshAndCreateNewTokens, verifyRefreshAndCreateNewTokensUpdate } from "../../lib/tools/tools.js";
 
 import multer from "multer";
 import { v2 as cloudinary } from "cloudinary";
@@ -122,7 +118,7 @@ usersRouter.get("/", async (req, res, next) => {
       query.email = { $regex: `${emailIncludes}`, $options: "i" };
     }
 
-    const users = await UsersModel.find(query, { avatar: 1, username: 1, email: 1 });
+    const users = await UsersModel.find(query, { avatar: 1, username: 1, email: 1, chats: 1 });
     res.status(200).send(users);
   } catch (error) {
     console.log(error);
