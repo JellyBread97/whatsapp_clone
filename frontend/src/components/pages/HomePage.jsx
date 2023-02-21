@@ -9,8 +9,8 @@ const HomePage = () => {
       <Row className="mt-5">
         <Col xs={12} md={8}>
           <Jumbotron>
-            <h1>Welcome to My App!</h1>
-            <Image src="https://picsum.photos/550/300" rounded />
+            <h1>Whatsuuuuuuuuuuuuuup!</h1>
+            <Image src="https://picsum.photos/650/200" rounded />
           </Jumbotron>
         </Col>
         <Col xs={6} md={4}>

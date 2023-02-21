@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
 import { Form, Button } from "react-bootstrap";
+import { useDispatch, useSelector } from "react-redux";
+import { serUserInfoAction } from "../../../../redux/actions/index";
 
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -16,6 +18,7 @@ function Register() {
   });
 
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const [isRegistered, setIsRegistered] = useState(false);
   const [passwordStrength, setPasswordStrength] = useState(0);
@@ -38,7 +41,7 @@ function Register() {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    if (passwordStrength < 1) {
+    if (passwordStrength < 3) {
       toast.error("Password is too weak. Please choose a stronger password.");
       return;
     }
@@ -56,6 +59,8 @@ function Register() {
         throw new Error("Network response was not ok. Failed to register user");
       }
       const data = await response.json();
+      dispatch(serUserInfoAction(data));
+
       console.log("REGISTER data from fetch: ", data);
       localStorage.setItem("accessToken", `${data.accessToken}`);
       localStorage.setItem("refreshToken", `${data.refreshToken}`);
@@ -72,7 +77,7 @@ function Register() {
 
   useEffect(() => {
     if (isRegistered) {
-      navigate("/login");
+      navigate("/");
     }
   }, [isRegistered]);
 
