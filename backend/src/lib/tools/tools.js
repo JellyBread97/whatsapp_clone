@@ -1,3 +1,4 @@
+import { check } from "express-validator";
 import jwt from "jsonwebtoken";
 import UsersModel from "../../api/user/model.js";
 import createHttpError from "http-errors";

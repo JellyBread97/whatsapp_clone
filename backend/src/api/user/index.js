@@ -123,7 +123,7 @@ usersRouter.get("/", async (req, res, next) => {
     }
 
     const users = await UsersModel.find(query, { avatar: 1, username: 1, email: 1 });
-    res.status(200).send({ users });
+    res.status(200).send(users);
   } catch (error) {
     console.log(error);
     next(createHttpError(500, "An error occurred while logging in"));
