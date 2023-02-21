@@ -7,7 +7,7 @@ const usersSchema = new Schema(
   {
     username: { type: String, required: true },
     email: { type: String, required: true },
-    avatar: { type: String, required: true },
+    avatar: { type: String, default: "http://placeimg.com/640/480" },
     password: { type: String, required: false },
     refreshToken: { type: String, required: false },
   },
