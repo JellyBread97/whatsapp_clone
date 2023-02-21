@@ -1,7 +1,18 @@
 import React from "react";
-import { Container, Grid, Paper, Typography, TextField, Button } from "@mui/material";
+
+import {
+  Container,
+  Grid,
+  Paper,
+  Typography,
+  TextField,
+  Button,
+  Link,
+} from "@mui/material";
+import "./Login.css";
 import { toast } from "react-toastify";
 import { useState } from "react";
+
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -74,7 +85,14 @@ const Login = () => {
               />
             </Container>
             <Container className="login__password">
-              <Typography className="login__text">Password</Typography>
+              <Container className="login__flex">
+                <Typography className="login__text">Password</Typography>
+                <Link href="#" underline="none">
+                  <Typography className="login__forgot">
+                    Forgot password?
+                  </Typography>
+                </Link>
+              </Container>
               <TextField
                 className="login__typography"
                 variant="outlined"
@@ -92,6 +110,11 @@ const Login = () => {
             <Button className="login__button" type="submit" fullWidth onClick={handleSubmit}>
               Login
             </Button>
+            <Link href="#" underline="none">
+              <Typography className="login__create">
+                Create new account
+              </Typography>
+            </Link>
           </Paper>
         </Grid>
       </div>
