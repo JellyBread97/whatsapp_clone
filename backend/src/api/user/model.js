@@ -9,7 +9,6 @@ const usersSchema = new Schema(
     email: { type: String, required: true },
     avatar: { type: String, required: true },
     password: { type: String, required: false },
-    refreshToken: { type: String, required: false },
   },
   {
     timestamps: true,
@@ -36,7 +35,6 @@ usersSchema.methods.toJSON = function () {
   delete user.createdAt;
   delete user.updatedAt;
   delete user.__v;
-  delete user.refreshToken;
   return user;
 };
 
