@@ -16,7 +16,7 @@ chatRouter.post("/", async (req, res, next) => {
 
 chatRouter.post("/:senderId/:receiverId", async (req, res, next) => {
   try {
-    const sender = UsersModel.findById(req.params.senderId);
+    //const sender = UsersModel.findById(req.params.senderId);
     const senderId = req.params.senderId;
     const receiverId = req.params.receiverId;
 
@@ -24,9 +24,11 @@ chatRouter.post("/:senderId/:receiverId", async (req, res, next) => {
 
     let status = null;
 
+    //check for array length first
+
     const checkChatExistance = async (sender, receiver) => {
       const filterd = allChats.map((chat) => {
-        if (chat.members.includes(receiver) && chat.members.includes(sender) && chat.members.length === 3) {
+        if (chat.members.includes(receiver) && chat.members.includes(sender) && chat.members.length === 2) {
           console.log("-------------:", true);
           console.log("ARRAY:LENGTH-1:", chat.members.length);
           status = chat;
@@ -50,9 +52,9 @@ chatRouter.post("/:senderId/:receiverId", async (req, res, next) => {
 
 chatRouter.get("/", async (req, res, next) => {
   try {
-    const chats = await ChatModel.find();
-    //   .populate({ path: "messages", select: ["content"] })
-    //   .populate({ path: "members", select: ["name", "email", "avatar"] });
+    const chats = await ChatModel.find()
+      .populate({ path: "messages", select: ["content"] })
+      .populate({ path: "members", select: ["name", "email", "avatar"] });
     res.status(200).send(chats);
   } catch (error) {
     next(error);
