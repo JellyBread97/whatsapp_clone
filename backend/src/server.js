@@ -26,10 +26,9 @@ expressServer.use(cors());
 expressServer.use(express.json());
 
 // ******************************** ENDPOINTS *****************************************
-expressServer.use("/chat", chatRouter);
-expressServer.use("/message", messageRouter);
+expressServer.use("/chats", chatRouter);
+expressServer.use("/messages", messageRouter);
 expressServer.use("/users", usersRouter);
-
 
 // ***************************** ERROR HANDLERS ***************************************
 expressServer.use(badRequestHandler);

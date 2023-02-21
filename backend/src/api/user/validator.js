@@ -14,12 +14,12 @@ const userSchema = {
       errorMessage: "email is a mandatory field",
     },
   },
-  avatar: {
-    in: ["body"],
-    isString: {
-      errorMessage: "avatar is a mandatory field",
-    },
-  },
+  // avatar: {
+  //   in: ["body"],
+  //   isString: {
+  //     errorMessage: "avatar is a mandatory field",
+  //   },
+  // },
   password: {
     in: ["body"],
     isString: {
