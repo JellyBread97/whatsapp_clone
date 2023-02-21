@@ -41,10 +41,10 @@ function Register() {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    if (passwordStrength < 3) {
-      toast.error("Password is too weak. Please choose a stronger password.");
-      return;
-    }
+    // if (passwordStrength < 1) {
+    //   toast.error("Password is too weak. Please choose a stronger password.");
+    //   return;
+    // }
     const options = {
       method: "POST",
       headers: {
@@ -77,35 +77,21 @@ function Register() {
 
   useEffect(() => {
     if (isRegistered) {
-      navigate("/");
+      navigate("/login");
     }
   }, [isRegistered]);
 
   return (
     <Form onSubmit={handleSubmit}>
       <Form.Group controlId="username">
-        <Form.Control
-          type="text"
-          name="username"
-          placeholder="username"
-          value={formData.username}
-          onChange={handleChange}
-        />
+        <Form.Control type="text" name="username" placeholder="username" value={formData.username} onChange={handleChange} />
       </Form.Group>
       <Form.Group controlId="email">
         <Form.Control type="email" name="email" placeholder="email" value={formData.email} onChange={handleChange} />
       </Form.Group>
       <Form.Group controlId="password">
-        <Form.Control
-          type="password"
-          name="password"
-          placeholder="password"
-          value={formData.password}
-          onChange={handleChange}
-        />
-        <Form.Text className={`text-${passwordStrength >= 2 ? "success" : "danger"}`}>
-          Password strength: {passwordStrengthArray[passwordStrength]}
-        </Form.Text>
+        <Form.Control type="password" name="password" placeholder="password" value={formData.password} onChange={handleChange} />
+        <Form.Text className={`text-${passwordStrength >= 2 ? "success" : "danger"}`}>Password strength: {passwordStrengthArray[passwordStrength]}</Form.Text>
       </Form.Group>
       <Button variant="outline-dark" type="submit">
         Register
