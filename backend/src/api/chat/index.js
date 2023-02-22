@@ -2,25 +2,30 @@ import express from "express";
 import ChatModel from "./model.js";
 import UsersModel from "../user/model.js";
 import { JWTAuthMiddleware } from "../../lib/auth/JWTauth.js";
+import createHttpError from "http-errors";
 
 const chatRouter = express.Router();
 
 chatRouter.post("/newChat", JWTAuthMiddleware, async (req, res, next) => {
   try {
-    const chatsArray = await ChatModel.find({
-      members: {
-        $eq: [req.user._id, req.body.receiver],
-      },
-    });
+    if (req.body.receiver) {
+      const chatsArray = await ChatModel.find({
+        members: {
+          $eq: [req.user._id, ...req.body.receiver],
+        },
+      });
 
-    if (chatsArray.length !== 0) {
-      res.status(201).send({ message: "CHAT EXIST ALREADY", theChat: chatsArray });
+      if (chatsArray.length !== 0) {
+        res.status(201).send({ message: "CHAT EXIST ALREADY", theChat: chatsArray });
+      } else {
+        const newChat = new ChatModel({ members: [req.user._id, req.body.receiver] });
+        const { _id } = await newChat.save();
+        const updateSender = await UsersModel.findByIdAndUpdate(req.user._id, { $push: { chats: { _id } } }, { new: true });
+        const updateReceiver = await UsersModel.findByIdAndUpdate(req.body.receiver, { $push: { chats: { _id } } }, { new: true });
+        res.status(201).send({ newChat, updateSender, updateReceiver });
+      }
     } else {
-      const newChat = new ChatModel({ members: [req.user._id, req.body.receiver] });
-      const { _id } = await newChat.save();
-      const updateSender = await UsersModel.findByIdAndUpdate(req.user._id, { $push: { chats: { _id } } }, { new: true });
-      const updateReceiver = await UsersModel.findByIdAndUpdate(req.body.receiver, { $push: { chats: { _id } } }, { new: true });
-      res.status(201).send({ newChat, updateSender, updateReceiver });
+      next(createHttpError(400, "Receipient ID not provided"));
     }
   } catch (error) {
     console.log(error);

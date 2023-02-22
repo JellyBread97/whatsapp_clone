@@ -4,21 +4,24 @@ const { Schema, model } = mongoose;
 const ContentSchema = new Schema({
   text: {
     type: String,
-    trim: true,
+    required: false,
   },
   media: {
     type: String,
-    trim: true,
+    required: false,
   },
 });
 
-ContentSchema.path("text").validate(function (value) {
-  return value || this.media; // text or media must be provided
-}, "Either text or media or both is required");
+// ContentSchema.path("text").validate(function (text) {
+//   console.log("VALUE", text);
+//   return text || this.media;
+//   console.log("VALUE", value); // text or media must be provided
+// }, "Either text or media or both is required");
 
-ContentSchema.path("media").validate(function (value) {
-  return value || this.text; // text or media must be provided
-}, "Either text or media or both is required");
+// ContentSchema.path("media").validate(function (media) {
+//   console.log("VALUE", media);
+//   return media || this.text; // text or media must be provided
+// }, "Either text or media or both is required");
 
 const messagesSchema = new Schema(
   {
