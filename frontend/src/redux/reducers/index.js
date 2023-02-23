@@ -14,7 +14,6 @@ const mainReducer = (state = initialState, action) => {
   switch (action.type) {
     case SET_USER_INFO:
       return {
-        ...state,
         userInfo: {
           ...state.userInfo,
           ...action.payload,

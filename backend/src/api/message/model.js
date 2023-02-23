@@ -25,11 +25,16 @@ const ContentSchema = new Schema({
 
 const messagesSchema = new Schema(
   {
-    sender: [{ type: Schema.Types.ObjectId, ref: "User", required: true }],
-    content: {
-      type: ContentSchema,
-      required: true,
+    sender: { type: Schema.Types.ObjectId, ref: "User", required: true },
+    receiver: { type: Schema.Types.ObjectId, ref: "User", required: true },
+    text: {
+      type: String,
+      required: false,
     },
+    // content: {
+    //   type: ContentSchema,
+    //   required: true,
+    // },
   },
   {
     timestamps: true,

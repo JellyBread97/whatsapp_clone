@@ -12,9 +12,16 @@ messageRouter.post("/:chatId", JWTAuthMiddleware, async (req, res, next) => {
 
     if (theChat) {
       if (req.body.text || req.body.media) {
-        const newMessage = new MessageModel({ sender: req.user._id, content: { text: req.body.text, media: req.body.media } });
+        const newMessage = new MessageModel({
+          sender: req.user._id,
+          content: { text: req.body.text, media: req.body.media },
+        });
         const { _id } = await newMessage.save();
-        const updatedChat = await ChatModel.findByIdAndUpdate(req.params.chatId, { $push: { messages: { _id } } }, { new: true });
+        const updatedChat = await ChatModel.findByIdAndUpdate(
+          req.params.chatId,
+          { $push: { messages: { _id } } },
+          { new: true }
+        );
         await updatedChat.save();
         res.status(201).send({ updatedChat, newMessage });
       } else {

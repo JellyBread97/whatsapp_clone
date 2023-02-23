@@ -1,4 +1,8 @@
 import jwt from "jsonwebtoken";
+
+import MessagesModel from "../api/message/model.js";
+import ChatsModel from "../api/chat/model.js";
+
 let onlineUsers = [];
 
 export const newConnectionHandler = (newClient) => {
@@ -28,10 +32,38 @@ export const newConnectionHandler = (newClient) => {
   });
 
   // 3. Listen to "sendMessage" event, this is received when an user sends a new message
-  newClient.on("sendMessage", (message) => {
-    console.log("NEW MESSAGE:", message);
-    // 3.1 Whenever we receive that new message we have to propagate that message to everybody but not sender
-    newClient.broadcast.emit("newMessage", message);
+  // newClient.on("sendMessage", (message) => {
+  //   console.log("NEW MESSAGE:", message);
+  //   // 3.1 Whenever we receive that new message we have to propagate that message to everybody but not sender
+  //   newClient.broadcast.emit("newMessage", message);
+  // });
+
+  newClient.on("sendMessage", async (message) => {
+    console.log("new message ", message);
+    const { sender, receiver, text, createdAt } = message;
+    const { _id } = await new MessagesModel({
+      sender,
+      receiver,
+      text,
+      createdAt,
+    }).save();
+
+    const commonChat = await ChatsModel.findOne({ members: { $in: [sender, receiver] } });
+    const targetSocket = onlineUsers.find((user) => user._id === receiver);
+    if (commonChat) {
+      await commonChat.update({ $push: { messages: { _id } } });
+
+      if (targetSocket) {
+        // targetSocket.emit("newMessage", { chatId: commonChat._id });
+        targetSocket.emit("newMessage", message);
+      }
+    } else {
+      const newCommonChat = await new ChatsModel({ members: [sender, receiver], messages: [_id] }).save();
+      if (targetSocket) {
+        // targetSocket.emit("newMessage", { chatId: commonChat._id });
+        targetSocket.emit("newMessage", message);
+      }
+    }
   });
 
   // 4. Listen to an event called "disconnect", this is NOT a custom event!! This event happens when an user closes browser/tab
