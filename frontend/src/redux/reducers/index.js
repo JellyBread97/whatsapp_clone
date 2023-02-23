@@ -1,4 +1,4 @@
-import { SET_USER_INFO } from "../actions";
+import { SET_USER_INFO, SET_SEARCHED_USER } from "../actions";
 
 const initialState = {
   userInfo: {
@@ -7,6 +7,7 @@ const initialState = {
     email: "",
     avatar: "",
   },
+  searchedUser: {},
 };
 
 const mainReducer = (state = initialState, action) => {
@@ -16,6 +17,13 @@ const mainReducer = (state = initialState, action) => {
         ...state,
         userInfo: {
           ...state.userInfo,
+          ...action.payload,
+        },
+      };
+    case SET_SEARCHED_USER:
+      return {
+        searchedUser: {
+          ...state.searchedUser,
           ...action.payload,
         },
       };

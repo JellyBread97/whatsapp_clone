@@ -9,6 +9,7 @@ import Login from "./components/login/Login";
 
 import HomePage from "./components/pages/HomePage";
 import { ToastContainer } from "react-toastify";
+import Home from "./components/pages/Home.jsx";
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/home" element={<Home />} />
       </Routes>
       <ToastContainer position="top-center" />
     </Router>
