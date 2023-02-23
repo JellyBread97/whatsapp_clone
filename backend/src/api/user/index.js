@@ -4,7 +4,11 @@ import UsersModel from "./model.js";
 import { checkFilteredSchema, checkUserSchema, triggerBadRequest } from "./validator.js";
 import { JWTAuthMiddleware } from "../../lib/auth/JWTAuth.js";
 // import { createAccessToken } from "../../lib/tools/tools.js";
-import { createTokens, verifyRefreshAndCreateNewTokens, verifyRefreshAndCreateNewTokensUpdate } from "../../lib/tools/tools.js";
+import {
+  createTokens,
+  verifyRefreshAndCreateNewTokens,
+  verifyRefreshAndCreateNewTokensUpdate,
+} from "../../lib/tools/tools.js";
 
 import multer from "multer";
 import { v2 as cloudinary } from "cloudinary";
@@ -33,9 +37,9 @@ usersRouter.post("/account", checkUserSchema, triggerBadRequest, async (req, res
     const user = new UsersModel(body);
 
     const { accessToken, refreshToken } = await createTokens(user);
-    const { _id, email } = await user.save();
+    const { _id, email, username, avatar } = await user.save();
 
-    res.status(201).send({ _id, email, accessToken, refreshToken });
+    res.status(201).send({ _id, username, email, avatar, accessToken, refreshToken });
   } catch (error) {
     next(error);
   }

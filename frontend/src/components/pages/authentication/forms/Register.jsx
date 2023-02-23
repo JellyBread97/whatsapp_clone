@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Form, Button } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
-import { serUserInfoAction } from "../../../../redux/actions/index";
+import { setUserInfoAction } from "../../../../redux/actions/index";
 
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -59,7 +59,8 @@ function Register() {
         throw new Error("Network response was not ok. Failed to register user");
       }
       const data = await response.json();
-      dispatch(serUserInfoAction(data));
+      console.log("data from fetch: ", data);
+      dispatch(setUserInfoAction(data));
 
       console.log("REGISTER data from fetch: ", data);
       localStorage.setItem("accessToken", `${data.accessToken}`);
@@ -77,21 +78,35 @@ function Register() {
 
   useEffect(() => {
     if (isRegistered) {
-      navigate("/login");
+      navigate("/home");
     }
   }, [isRegistered]);
 
   return (
     <Form onSubmit={handleSubmit}>
       <Form.Group controlId="username">
-        <Form.Control type="text" name="username" placeholder="username" value={formData.username} onChange={handleChange} />
+        <Form.Control
+          type="text"
+          name="username"
+          placeholder="username"
+          value={formData.username}
+          onChange={handleChange}
+        />
       </Form.Group>
       <Form.Group controlId="email">
         <Form.Control type="email" name="email" placeholder="email" value={formData.email} onChange={handleChange} />
       </Form.Group>
       <Form.Group controlId="password">
-        <Form.Control type="password" name="password" placeholder="password" value={formData.password} onChange={handleChange} />
-        <Form.Text className={`text-${passwordStrength >= 2 ? "success" : "danger"}`}>Password strength: {passwordStrengthArray[passwordStrength]}</Form.Text>
+        <Form.Control
+          type="password"
+          name="password"
+          placeholder="password"
+          value={formData.password}
+          onChange={handleChange}
+        />
+        <Form.Text className={`text-${passwordStrength >= 2 ? "success" : "danger"}`}>
+          Password strength: {passwordStrengthArray[passwordStrength]}
+        </Form.Text>
       </Form.Group>
       <Button variant="outline-dark" type="submit">
         Register
