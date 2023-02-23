@@ -4,7 +4,7 @@ import { Container, Row, Col, Form, FormControl, ListGroup } from "react-bootstr
 import { io } from "socket.io-client";
 // import jwt from "jsonwebtoken";
 import React from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { batch, useDispatch, useSelector } from "react-redux";
 import { setSearchedUser } from "../../redux/actions/index";
 
 const token = localStorage.getItem("accessToken");
@@ -21,10 +21,13 @@ const Home = () => {
   const [loggedIn, setLoggedIn] = useState(false);
   const [onlineUsers, setOnlineUsers] = useState([]);
   const [chatHistory, setChatHistory] = useState([]);
+  const [activeuser, setActiveuser] = useState(false);
   // const [currentUser, setCurrentUser] = useState(null);
+  const searchedUser = useSelector((state) => state.searchedUser);
+  const userId = searchedUser._id;
 
+  console.log("searchedUser: ", searchedUser);
   console.log("username: ", username);
-  const userId = useSelector((store) => store.userInfo._id);
   console.log("userId", userId);
 
   const dispatch = useDispatch();
@@ -107,20 +110,21 @@ const Home = () => {
             //   submitUserId();
             // }}
           >
-            <FormControl
-              placeholder="Search by username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              disabled={loggedIn}
-            />
+            <FormControl placeholder="Search by username" value={username} onChange={(e) => setUsername(e.target.value)} disabled={loggedIn} />
           </Form>
+
+          <ListGroup className={activeuser ? "bg-warning" : ""}>
+            <ListGroup.Item key={searchedUser._id}>
+              {searchedUser.username} | {searchedUser.email}
+            </ListGroup.Item>
+          </ListGroup>
+
           {/* )} */}
           {/* MIDDLE AREA: CHAT HISTORY */}
           <ListGroup>
             {chatHistory.map((message, index) => (
               <ListGroup.Item key={index}>
-                {<strong>{message.sender === userId ? "ME" : message.sender}</strong>} | {message.text} at{" "}
-                {message.createdAt}
+                {<strong>{message.sender === userId ? "ME" : message.sender}</strong>} | {message.text} at {message.createdAt}
               </ListGroup.Item>
             ))}
           </ListGroup>
@@ -131,12 +135,7 @@ const Home = () => {
               sendMessage();
             }}
           >
-            <FormControl
-              placeholder="Write your message here"
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              disabled={!loggedIn}
-            />
+            <FormControl placeholder="Write your message here" value={message} onChange={(e) => setMessage(e.target.value)} disabled={!loggedIn} />
           </Form>
         </Col>
         <Col md={3}>
@@ -154,8 +153,16 @@ const Home = () => {
           {userList.length === 0 && <ListGroup.Item>No users in the db !</ListGroup.Item>}
           <ListGroup>
             {userList.map((user) => (
-              <ListGroup.Item key={user._id} onClick={() => dispatch(setSearchedUser(user))}>
-                {user.username} | {user.email}
+              <ListGroup.Item
+                key={user._id}
+                onClick={() => {
+                  setActiveuser(true);
+                  dispatch(setSearchedUser(user));
+                }}
+              >
+                <span>
+                  {user.username} | {user.email}
+                </span>
               </ListGroup.Item>
             ))}
           </ListGroup>

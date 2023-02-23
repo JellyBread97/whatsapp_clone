@@ -13,6 +13,7 @@ export const setUserInfoAction = (user) => {
 };
 
 export const setSearchedUser = (searchedUser) => {
+  console.log("setSearchedUser-----------", searchedUser);
   return {
     type: SET_SEARCHED_USER,
     payload: searchedUser,
