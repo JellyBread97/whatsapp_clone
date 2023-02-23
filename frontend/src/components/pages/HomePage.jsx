@@ -1,7 +1,7 @@
 import React from "react";
 import { Container, Row, Col, Image, Jumbotron } from "react-bootstrap";
 import Register from "./authentication/forms/Register";
-import GoogleAuthButton from "./authentication/googleOAUTH/GoogleAuthButton";
+// import GoogleAuthButton from "./authentication/googleOAUTH/GoogleAuthButton";
 
 const HomePage = () => {
   return (
@@ -15,7 +15,7 @@ const HomePage = () => {
         </Col>
         <Col xs={6} md={4}>
           <Register />
-          <GoogleAuthButton />
+          {/* <GoogleAuthButton /> */}
         </Col>
       </Row>
     </Container>
