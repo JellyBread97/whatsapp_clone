@@ -1,5 +1,6 @@
 import createHttpError from "http-errors";
 import { verifyAccessToken } from "../tools/tools.js";
+import UsersModel from "../../api/user/model.js";
 
 export const JWTAuthMiddleware = async (req, res, next) => {
   if (!req.headers.authorization) {
@@ -14,6 +15,12 @@ export const JWTAuthMiddleware = async (req, res, next) => {
         _id: payload._id,
         username: payload.username,
       };
+
+      // attach the chats belonging to the authenticated user to the req object
+      const user = await UsersModel.findById(payload._id).populate("chats");
+
+      req.user.chats = user.chats;
+
       next();
     } catch (error) {
       console.log(error);

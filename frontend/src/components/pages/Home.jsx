@@ -33,7 +33,7 @@ const Home = () => {
   //const username = useSelector((store) => store.userInfo.username);
 
   useEffect(() => {
-    socket.on("welcome", (welcomeMessage) => {
+    socket.on("connection", (welcomeMessage) => {
       console.log(welcomeMessage);
 
       socket.on("loggedIn", (onlineUsersList) => {
@@ -49,11 +49,20 @@ const Home = () => {
     });
     socket.on("newMessage", (newMessage) => {
       console.log(newMessage);
-      if (searchedUser && newMessage.receiverId === userId) {
+      if (searchedUser && newMessage.receiverId === searchedUser._id) {
         setChatHistory([...chatHistory, newMessage.message]);
       }
     });
+    socket.on("joinRoom", (roomId) => {
+      console.log(`Joining room ${roomId}`);
+      // Call the 'join' method on the socket to join the room
+      socket.join(roomId);
+    });
+    socket.on("chatMessage", (message) => {
+      console.log(`Received message: ${message}`);
+    });
   }, [chatHistory, searchedUser]);
+  console.log("chat history:", chatHistory);
 
   // const submitUsername = () => {
   //   // here we will be emitting a "setUsername" event (the server is already listening for that)
@@ -126,6 +135,28 @@ const Home = () => {
       setMessage("");
       // socket.emit("sendMessage", { message: newMessage });
       // setChatHistory([...chatHistory, newMessage]);
+    }
+  };
+
+  const getChats = async () => {
+    try {
+      const endpoint = "http://localhost:3001/chats";
+      const response = await fetch(endpoint, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      const chats = await response.json();
+      console.log(chats);
+
+      // join the user's socket to all the chat rooms they are supposed to be in
+      chats.forEach((chat) => {
+        socket.emit("joinRoom", chat._id.toString());
+      });
+    } catch (error) {
+      console.error(error);
     }
   };
 

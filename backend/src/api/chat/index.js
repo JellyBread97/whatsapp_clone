@@ -6,6 +6,18 @@ import createHttpError from "http-errors";
 
 const chatRouter = express.Router();
 
+// NEW ROUTE - retrieves all the chat rooms the user is a part of
+chatRouter.get("/", JWTAuthMiddleware, async (req, res, next) => {
+  try {
+    const userId = req.user._id;
+    const user = await UsersModel.findById(userId).populate("chats");
+    const chats = user.chats;
+    res.json(chats);
+  } catch (error) {
+    next(error);
+  }
+});
+
 chatRouter.post("/newChat", JWTAuthMiddleware, async (req, res, next) => {
   try {
     if (req.body.receiver) {
@@ -20,8 +32,16 @@ chatRouter.post("/newChat", JWTAuthMiddleware, async (req, res, next) => {
       } else {
         const newChat = new ChatModel({ members: [req.user._id, req.body.receiver] });
         const { _id } = await newChat.save();
-        const updateSender = await UsersModel.findByIdAndUpdate(req.user._id, { $push: { chats: { _id } } }, { new: true });
-        const updateReceiver = await UsersModel.findByIdAndUpdate(req.body.receiver, { $push: { chats: { _id } } }, { new: true });
+        const updateSender = await UsersModel.findByIdAndUpdate(
+          req.user._id,
+          { $push: { chats: { _id } } },
+          { new: true }
+        );
+        const updateReceiver = await UsersModel.findByIdAndUpdate(
+          req.body.receiver,
+          { $push: { chats: { _id } } },
+          { new: true }
+        );
         res.status(201).send({ newChat, updateSender, updateReceiver });
       }
     } else {
